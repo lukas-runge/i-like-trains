@@ -31,6 +31,7 @@ if (TARGET tinyusb_device)
     # Add pico_stdlib library which aggregates commonly used features
     target_link_libraries(${PROJECT_NAME}
         pico_stdlib
+        pico_multicore
         proto
     )
 
