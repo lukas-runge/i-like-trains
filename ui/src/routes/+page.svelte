@@ -61,7 +61,7 @@
             if (incomingByteQueue.length < length + 4) {
                 break;
             }
-            onPacket(incomingByteQueue.slice(0, length + 4));
+            onPacket(incomingByteQueue.slice(4, length + 4));
             incomingByteQueue = incomingByteQueue.slice(length + 4);
         }
     }
