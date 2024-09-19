@@ -2,13 +2,15 @@
     import { onMount } from "svelte";
     import { goto } from "$app/navigation";
 
+    let supported = true;
     let writable: WritableStreamDefaultWriter<Uint8Array> | null = null;
     let error: string | null = null;
     let abortSignal: AbortSignal;
 
     onMount(() => {
         if (!("serial" in navigator)) {
-            goto("/unsupported");
+            supported = false;
+            return;
         }
 
         const abortController = new AbortController();
@@ -53,18 +55,26 @@
     }
 </script>
 
-<div>
-    Webserial Status:
-    {#if writable}
-        <span class="text-success">Connected</span>
-    {:else}
-        {#if error}
-            <span class="text-danger">Error: {error == "Failed to execute 'requestPort' on 'Serial': Must be handling a user gesture to show a permission request." ? "Cannot access serial port without user gesture. Please press the button on the device." : error}</span>
+{#if supported}
+    <div>
+        Webserial Status:
+        {#if writable}
+            <span class="text-success">Connected</span>
         {:else}
-            <span class="text-warning">Disconnected</span>
+            {#if error}
+                <span class="text-danger">Error: {error == "Failed to execute 'requestPort' on 'Serial': Must be handling a user gesture to show a permission request." ? "Cannot access serial port without user gesture. Please press the button on the device." : error}</span>
+            {:else}
+                <span class="text-warning">Disconnected</span>
+            {/if}
+            <div class="my-3">
+                <button class="btn btn-outline-primary" on:click={connect}>Connect</button>
+            </div>
         {/if}
-        <div class="my-3">
-            <button class="btn btn-outline-primary" on:click={connect}>Connect</button>
-        </div>
-    {/if}
-</div>
+    </div>
+{:else}
+    <div class="alert alert-danger">
+        <b>Unsupported browser</b><br />
+        Unfortunately, your browser does not support the features required to run this application (Webserial API).<br />
+        Please use a Chrome-based browser (e.g. Google Chrome, Microsoft Edge, Brave, Opera) to control your model railway.
+    </div>
+{/if}
