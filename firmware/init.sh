@@ -8,4 +8,4 @@ cmake -DPICO_SDK_PATH=../../pico-sdk .. &&
 printf "\n--- BUILDING ---\n" &&
 make &&
 cd ../.. &&
-mkdir -p build/protobuf
+python3 -m pip install protobuf grpcio-tools --break-system-packages
