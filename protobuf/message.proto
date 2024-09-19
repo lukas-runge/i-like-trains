@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package serial;
+
+message ControlPacket {
+    uint32 address = 10;
+    Command command = 20;
+    uint32 payload = 30;
+}
+
+enum Command {
+    DRIVE = 10;
+    PROGRAM = 20;
+    RESET = 100;
+}
