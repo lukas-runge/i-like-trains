@@ -58,7 +58,9 @@
             console.error("No writable stream");
             return;
         }
-        await writable.write(toBinary(schema, create(schema, data)));
+        const bytes = toBinary(schema, create(schema, data));
+        const length = new Uint8Array([bytes.length & 0xff, (bytes.length >> 8) & 0xff, (bytes.length >> 16) & 0xff, (bytes.length >> 24) & 0xff]);
+        await writable.write(new Uint8Array([...length, ...bytes]));
     }
 
     async function handshake() {
@@ -87,6 +89,8 @@
     }
 
     function onPacket(data: Uint8Array) {
+        const length = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+        data = data.slice(4, length + 4);
         const message = fromBinary(MessageSchema, data);
         switch (message.content.case) {
             case "handshake":
