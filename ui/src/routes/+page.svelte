@@ -74,7 +74,7 @@
         }, 5000);
         new Promise<void>((resolve, reject) => {
             resolveHandshakePromise = () => {
-                resolve;
+                resolve();
                 clearTimeout(timeout);
             };
             rejectHandshakePromise = reject;
