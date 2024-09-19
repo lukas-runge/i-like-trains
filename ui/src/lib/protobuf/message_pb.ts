@@ -10,7 +10,7 @@ import type { Message as Message$1 } from "@bufbuild/protobuf";
  * Describes the file message.proto.
  */
 export const file_message: GenFile = /*@__PURE__*/
-  fileDesc("Cg1tZXNzYWdlLnByb3RvEgZzZXJpYWwibQoHTWVzc2FnZRImCgloYW5kc2hha2UYCiABKAsyES5zZXJpYWwuSGFuZHNoYWtlSAASLwoOY29udHJvbF9wYWNrZXQYFCABKAsyFS5zZXJpYWwuQ29udHJvbFBhY2tldEgAQgkKB2NvbnRlbnQiMAoJSGFuZHNoYWtlEiMKBHR5cGUYCiABKA4yFS5zZXJpYWwuSGFuZHNoYWtlVHlwZSL7AgoNQ29udHJvbFBhY2tldBIPCgdhZGRyZXNzGAogASgNEjMKBWRyaXZlGBQgASgLMiIuc2VyaWFsLkNvbnRyb2xQYWNrZXQuRHJpdmVDb21tYW5kSAASMQoEaGFsdBgoIAEoCzIhLnNlcmlhbC5Db250cm9sUGFja2V0LkhhbHRDb21tYW5kSAASRAoOZW1lcmdlbmN5X3N0b3AYMiABKAsyKi5zZXJpYWwuQ29udHJvbFBhY2tldC5FbWVyZ2VuY3lTdG9wQ29tbWFuZEgAGlEKDERyaXZlQ29tbWFuZBIyCglkaXJlY3Rpb24YCiABKA4yHy5zZXJpYWwuQ29udHJvbFBhY2tldC5EaXJlY3Rpb24SDQoFc3BlZWQYFCABKA0aDQoLSGFsdENvbW1hbmQaFgoURW1lcmdlbmN5U3RvcENvbW1hbmQiJgoJRGlyZWN0aW9uEgsKB0ZPUldBUkQQABIMCghCQUNLV0FSRBABQgkKB2NvbW1hbmQqKgoNSGFuZHNoYWtlVHlwZRILCgdSRVFVRVNUEAASDAoIUkVTUE9OU0UQAWIGcHJvdG8z");
+  fileDesc("Cg1tZXNzYWdlLnByb3RvEgZzZXJpYWwibQoHTWVzc2FnZRImCgloYW5kc2hha2UYCiABKAsyES5zZXJpYWwuSGFuZHNoYWtlSAASLwoOY29udHJvbF9wYWNrZXQYFCABKAsyFS5zZXJpYWwuQ29udHJvbFBhY2tldEgAQgkKB2NvbnRlbnQiMAoJSGFuZHNoYWtlEiMKBHR5cGUYCiABKA4yFS5zZXJpYWwuSGFuZHNoYWtlVHlwZSLMAwoNQ29udHJvbFBhY2tldBIPCgdhZGRyZXNzGAogASgNEjMKBWRyaXZlGBQgASgLMiIuc2VyaWFsLkNvbnRyb2xQYWNrZXQuRHJpdmVDb21tYW5kSAASMQoEaGFsdBgoIAEoCzIhLnNlcmlhbC5Db250cm9sUGFja2V0LkhhbHRDb21tYW5kSAASRAoOZW1lcmdlbmN5X3N0b3AYMiABKAsyKi5zZXJpYWwuQ29udHJvbFBhY2tldC5FbWVyZ2VuY3lTdG9wQ29tbWFuZEgAEjMKBWxpZ2h0GDwgASgLMiIuc2VyaWFsLkNvbnRyb2xQYWNrZXQuTGlnaHRDb21tYW5kSAAaUQoMRHJpdmVDb21tYW5kEjIKCWRpcmVjdGlvbhgKIAEoDjIfLnNlcmlhbC5Db250cm9sUGFja2V0LkRpcmVjdGlvbhINCgVzcGVlZBgUIAEoDRoaCgxMaWdodENvbW1hbmQSCgoCb24YCiABKAgaDQoLSGFsdENvbW1hbmQaFgoURW1lcmdlbmN5U3RvcENvbW1hbmQiJgoJRGlyZWN0aW9uEgsKB0ZPUldBUkQQABIMCghCQUNLV0FSRBABQgkKB2NvbW1hbmQqKgoNSGFuZHNoYWtlVHlwZRILCgdSRVFVRVNUEAASDAoIUkVTUE9OU0UQAWIGcHJvdG8z");
 
 /**
  * @generated from message serial.Message
@@ -88,6 +88,12 @@ export type ControlPacket = Message$1<"serial.ControlPacket"> & {
      */
     value: ControlPacket_EmergencyStopCommand;
     case: "emergencyStop";
+  } | {
+    /**
+     * @generated from field: serial.ControlPacket.LightCommand light = 60;
+     */
+    value: ControlPacket_LightCommand;
+    case: "light";
   } | { case: undefined; value?: undefined };
 };
 
@@ -121,6 +127,23 @@ export const ControlPacket_DriveCommandSchema: GenMessage<ControlPacket_DriveCom
   messageDesc(file_message, 2, 0);
 
 /**
+ * @generated from message serial.ControlPacket.LightCommand
+ */
+export type ControlPacket_LightCommand = Message$1<"serial.ControlPacket.LightCommand"> & {
+  /**
+   * @generated from field: bool on = 10;
+   */
+  on: boolean;
+};
+
+/**
+ * Describes the message serial.ControlPacket.LightCommand.
+ * Use `create(ControlPacket_LightCommandSchema)` to create a new message.
+ */
+export const ControlPacket_LightCommandSchema: GenMessage<ControlPacket_LightCommand> = /*@__PURE__*/
+  messageDesc(file_message, 2, 1);
+
+/**
  * @generated from message serial.ControlPacket.HaltCommand
  */
 export type ControlPacket_HaltCommand = Message$1<"serial.ControlPacket.HaltCommand"> & {
@@ -131,7 +154,7 @@ export type ControlPacket_HaltCommand = Message$1<"serial.ControlPacket.HaltComm
  * Use `create(ControlPacket_HaltCommandSchema)` to create a new message.
  */
 export const ControlPacket_HaltCommandSchema: GenMessage<ControlPacket_HaltCommand> = /*@__PURE__*/
-  messageDesc(file_message, 2, 1);
+  messageDesc(file_message, 2, 2);
 
 /**
  * @generated from message serial.ControlPacket.EmergencyStopCommand
@@ -144,7 +167,7 @@ export type ControlPacket_EmergencyStopCommand = Message$1<"serial.ControlPacket
  * Use `create(ControlPacket_EmergencyStopCommandSchema)` to create a new message.
  */
 export const ControlPacket_EmergencyStopCommandSchema: GenMessage<ControlPacket_EmergencyStopCommand> = /*@__PURE__*/
-  messageDesc(file_message, 2, 2);
+  messageDesc(file_message, 2, 3);
 
 /**
  * @generated from enum serial.ControlPacket.Direction

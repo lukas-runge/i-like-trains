@@ -117,17 +117,73 @@
         }
     }
 
-    async function go() {
-        await writePacket(ControlPacketSchema, {
-            address: 13,
+    async function drive(forward: boolean) {
+        await writePacket(MessageSchema, {
+             content: {
+                case: "controlPacket",
+                value: {
+                address: 13,
             command: {
                 case: "drive",
                 value: {
-                    speed: 27,
-                    direction: ControlPacket_Direction.FORWARD,
+                    speed: 31,
+                    direction: forward ? ControlPacket_Direction.FORWARD : ControlPacket_Direction.BACKWARD,
                 },
             },
-        });
+             }
+        },
+    });
+    
+    }
+
+    async function halt() {
+        await writePacket(MessageSchema, {
+             content: {
+                case: "controlPacket",
+                value: {
+                address: 13,
+            command: {
+                case: "halt",
+                value: {},
+            },
+             }
+        },
+    });
+    
+    }
+
+    async function estop() {
+        await writePacket(MessageSchema, {
+             content: {
+                case: "controlPacket",
+                value: {
+                address: 13,
+            command: {
+                case: "emergencyStop",
+                value: {},
+            },
+             }
+        },
+    });
+    
+    }
+
+    async function setLightState(on: boolean) {
+        await writePacket(MessageSchema, {
+             content: {
+                case: "controlPacket",
+                value: {
+                address: 13,
+            command: {
+                case: "light",
+                value: {
+                    on
+                },
+            },
+             }
+        },
+    });
+    
     }
 </script>
 
@@ -153,7 +209,13 @@
     </div>
     <hr />
     <div>
-        <button on:click={go} class="btn btn-outline-primary">Go</button>
+        <button on:click={() => drive(false)} class="btn btn-outline-primary"><i class="fas fa-arrow-left" /></button>
+        <button on:click={halt} class="btn btn-outline-primary">HALT</button>
+        <button on:click={estop} class="btn btn-outline-primary">E-STOP</button>
+        <button on:click={() => drive(true)} class="btn btn-outline-primary"><i class="fas fa-arrow-right" /></button>
+        <button on:click={() => setLightState(true)} class="btn btn-outline-primary"><i class="fas fa-lightbulb" style="color: orange;" /></button>
+        <button on:click={() => setLightState(false)} class="btn btn-outline-primary"><i class="fas fa-lightbulb" style="color: black;" /></button>
+
     </div>
 {:else}
     <div class="alert alert-danger">

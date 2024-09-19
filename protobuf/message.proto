@@ -24,6 +24,7 @@ message ControlPacket {
         DriveCommand drive = 20;
         HaltCommand halt = 40;
         EmergencyStopCommand emergency_stop = 50;
+        LightCommand light = 60;
     }
     message DriveCommand {
         Direction direction = 10;
@@ -33,6 +34,10 @@ message ControlPacket {
     enum Direction {
         FORWARD = 0;
         BACKWARD = 1;
+    }
+
+    message LightCommand {
+        bool on = 10;
     }
     
     message HaltCommand {
