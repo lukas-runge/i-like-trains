@@ -9,7 +9,7 @@ message ControlPacket {
 }
 
 enum Command {
-    DRIVE = 10;
-    PROGRAM = 20;
+    DRIVE = 0;
+    PROGRAM = 10;
     RESET = 100;
 }
