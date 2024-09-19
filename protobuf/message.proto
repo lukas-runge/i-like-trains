@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package seriell;
+package serial;
 
 message ControlPacket {
     uint32 address = 10;
@@ -9,7 +9,7 @@ message ControlPacket {
 }
 
 enum Command {
-    DRIVE = 0;
-    PROGRAM = 1;
-    RESET = 99;
+    DRIVE = 10;
+    PROGRAM = 20;
+    RESET = 100;
 }
