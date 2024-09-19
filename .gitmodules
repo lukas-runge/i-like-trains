@@ -1,6 +1,6 @@
-[submodule "pico-sdk"]
-	path = pico-sdk
+[submodule "firmware/pico-sdk"]
+	path = firmware/pico-sdk
 	url = git@github.com:raspberrypi/pico-sdk.git
-[submodule "picotool"]
-	path = picotool
+[submodule "firmware/picotool"]
+	path = firmware/picotool
 	url = git@github.com:raspberrypi/picotool.git
