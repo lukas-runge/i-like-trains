@@ -9,6 +9,7 @@
     let abortSignal: AbortSignal;
     let resolveHandshakePromise: ((value: void) => void) | null = null;
     let rejectHandshakePromise: ((reason: any) => void) | null = null;
+    let incomingByteQueue = new Uint8Array();
 
     onMount(() => {
         if (!("serial" in navigator)) {
@@ -38,7 +39,7 @@
                 p.readable.pipeTo(
                     new WritableStream({
                         write(chunk) {
-                            onPacket(chunk);
+                            handleDataChunk(chunk);
                         },
                     }),
                     { signal: abortSignal }
@@ -51,6 +52,18 @@
                 console.error(e);
                 status = { type: "error", message: e.message };
             });
+    }
+
+    function handleDataChunk(chunk: Uint8Array) {
+        incomingByteQueue = new Uint8Array([...incomingByteQueue, ...chunk]);
+        while (incomingByteQueue.length >= 4) {
+            const length = incomingByteQueue[0] | (incomingByteQueue[1] << 8) | (incomingByteQueue[2] << 16) | (incomingByteQueue[3] << 24);
+            if (incomingByteQueue.length < length + 4) {
+                break;
+            }
+            onPacket(incomingByteQueue.slice(0, length + 4));
+            incomingByteQueue = incomingByteQueue.slice(length + 4);
+        }
     }
 
     async function writePacket<T extends Parameters<typeof create>[0]>(schema: T, data: Parameters<typeof create<T>>[1]) {
@@ -89,8 +102,6 @@
     }
 
     function onPacket(data: Uint8Array) {
-        const length = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
-        data = data.slice(4, length + 4);
         const message = fromBinary(MessageSchema, data);
         switch (message.content.case) {
             case "handshake":
