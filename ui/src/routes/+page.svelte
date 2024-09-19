@@ -211,7 +211,21 @@
 			}
 		});
 	}
+
+	function handleKeyboardInput(event: KeyboardEvent) {
+		if (event.code === "ArrowLeft") {
+			drive(false);
+		} else if (event.code === "ArrowRight") {
+			drive(true);
+		} else if (event.code === "Space") {
+			halt();
+		} else if (event.key === "e") {
+			estop();
+		}
+	}
 </script>
+
+<svelte:window on:keydown={handleKeyboardInput} />
 
 {#if status.type !== "unsupported"}
 	<div>
@@ -254,6 +268,13 @@
 		<button on:click={() => setLightState(false)} class="btn btn-outline-primary"
 			><i class="fas fa-lightbulb" style="color: black;" /></button
 		>
+
+		<ul class="mt-3 list-unstyled">
+			<li>Press <kbd>←</kbd> to drive the train backwards</li>
+			<li>Press <kbd>→</kbd> to drive the train forwards</li>
+			<li>Press <kbd>Space</kbd> to halt the train</li>
+			<li>Press <kbd>E</kbd> to emergency stop the train</li>
+		</ul>
 	</div>
 {:else}
 	<div class="alert alert-danger">
