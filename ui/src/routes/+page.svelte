@@ -78,7 +78,7 @@
 
     async function handshake() {
         status = { type: "handshaking" };
-        writePacket(HandshakeSchema, { type: HandshakeType.REQUEST });
+        writePacket(MessageSchema, { content: { case: "handshake", value: { type: HandshakeType.REQUEST } } });
         const timeout = setTimeout(() => {
             if (rejectHandshakePromise) {
                 rejectHandshakePromise(new Error("Handshake timeout - Are you sure the pico is running the correct firmware?"));
