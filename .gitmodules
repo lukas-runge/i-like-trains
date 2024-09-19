@@ -4,3 +4,6 @@
 [submodule "firmware/picotool"]
 	path = firmware/picotool
 	url = git@github.com:raspberrypi/picotool.git
+[submodule "nanopb"]
+	path = nanopb
+	url = git@github.com:nanopb/nanopb.git
