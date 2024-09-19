@@ -2,14 +2,35 @@ syntax = "proto3";
 
 package serial;
 
-message ControlPacket {
-    uint32 address = 10;
-    Command command = 20;
-    uint32 payload = 30;
+message Handshake {
+    HandshakeType type = 10;
 }
 
-enum Command {
-    DRIVE = 0;
-    PROGRAM = 10;
-    RESET = 100;
+enum HandshakeType {
+    REQUEST = 0;
+    RESPONSE = 1;
+}
+
+message ControlPacket {
+    uint32 address = 10;
+    oneof command {
+        DriveCommand drive = 20;
+        HaltCommand halt = 40;
+        EmergencyStopCommand emergency_stop = 50;
+    }
+    message DriveCommand {
+        Direction direction = 10;
+        uint32 speed = 20;
+    }
+    
+    enum Direction {
+        FORWARD = 0;
+        BACKWARD = 1;
+    }
+    
+    message HaltCommand {
+    }
+    
+    message EmergencyStopCommand {
+    }
 }
