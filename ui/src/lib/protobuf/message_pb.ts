@@ -4,18 +4,47 @@
 
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
-import type { Message } from "@bufbuild/protobuf";
+import type { Message as Message$1 } from "@bufbuild/protobuf";
 
 /**
  * Describes the file message.proto.
  */
 export const file_message: GenFile = /*@__PURE__*/
-  fileDesc("Cg1tZXNzYWdlLnByb3RvEgZzZXJpYWwiMAoJSGFuZHNoYWtlEiMKBHR5cGUYCiABKA4yFS5zZXJpYWwuSGFuZHNoYWtlVHlwZSL7AgoNQ29udHJvbFBhY2tldBIPCgdhZGRyZXNzGAogASgNEjMKBWRyaXZlGBQgASgLMiIuc2VyaWFsLkNvbnRyb2xQYWNrZXQuRHJpdmVDb21tYW5kSAASMQoEaGFsdBgoIAEoCzIhLnNlcmlhbC5Db250cm9sUGFja2V0LkhhbHRDb21tYW5kSAASRAoOZW1lcmdlbmN5X3N0b3AYMiABKAsyKi5zZXJpYWwuQ29udHJvbFBhY2tldC5FbWVyZ2VuY3lTdG9wQ29tbWFuZEgAGlEKDERyaXZlQ29tbWFuZBIyCglkaXJlY3Rpb24YCiABKA4yHy5zZXJpYWwuQ29udHJvbFBhY2tldC5EaXJlY3Rpb24SDQoFc3BlZWQYFCABKA0aDQoLSGFsdENvbW1hbmQaFgoURW1lcmdlbmN5U3RvcENvbW1hbmQiJgoJRGlyZWN0aW9uEgsKB0ZPUldBUkQQABIMCghCQUNLV0FSRBABQgkKB2NvbW1hbmQqKgoNSGFuZHNoYWtlVHlwZRILCgdSRVFVRVNUEAASDAoIUkVTUE9OU0UQAWIGcHJvdG8z");
+  fileDesc("Cg1tZXNzYWdlLnByb3RvEgZzZXJpYWwibQoHTWVzc2FnZRImCgloYW5kc2hha2UYCiABKAsyES5zZXJpYWwuSGFuZHNoYWtlSAASLwoOY29udHJvbF9wYWNrZXQYFCABKAsyFS5zZXJpYWwuQ29udHJvbFBhY2tldEgAQgkKB2NvbnRlbnQiMAoJSGFuZHNoYWtlEiMKBHR5cGUYCiABKA4yFS5zZXJpYWwuSGFuZHNoYWtlVHlwZSL7AgoNQ29udHJvbFBhY2tldBIPCgdhZGRyZXNzGAogASgNEjMKBWRyaXZlGBQgASgLMiIuc2VyaWFsLkNvbnRyb2xQYWNrZXQuRHJpdmVDb21tYW5kSAASMQoEaGFsdBgoIAEoCzIhLnNlcmlhbC5Db250cm9sUGFja2V0LkhhbHRDb21tYW5kSAASRAoOZW1lcmdlbmN5X3N0b3AYMiABKAsyKi5zZXJpYWwuQ29udHJvbFBhY2tldC5FbWVyZ2VuY3lTdG9wQ29tbWFuZEgAGlEKDERyaXZlQ29tbWFuZBIyCglkaXJlY3Rpb24YCiABKA4yHy5zZXJpYWwuQ29udHJvbFBhY2tldC5EaXJlY3Rpb24SDQoFc3BlZWQYFCABKA0aDQoLSGFsdENvbW1hbmQaFgoURW1lcmdlbmN5U3RvcENvbW1hbmQiJgoJRGlyZWN0aW9uEgsKB0ZPUldBUkQQABIMCghCQUNLV0FSRBABQgkKB2NvbW1hbmQqKgoNSGFuZHNoYWtlVHlwZRILCgdSRVFVRVNUEAASDAoIUkVTUE9OU0UQAWIGcHJvdG8z");
+
+/**
+ * @generated from message serial.Message
+ */
+export type Message = Message$1<"serial.Message"> & {
+  /**
+   * @generated from oneof serial.Message.content
+   */
+  content: {
+    /**
+     * @generated from field: serial.Handshake handshake = 10;
+     */
+    value: Handshake;
+    case: "handshake";
+  } | {
+    /**
+     * @generated from field: serial.ControlPacket control_packet = 20;
+     */
+    value: ControlPacket;
+    case: "controlPacket";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message serial.Message.
+ * Use `create(MessageSchema)` to create a new message.
+ */
+export const MessageSchema: GenMessage<Message> = /*@__PURE__*/
+  messageDesc(file_message, 0);
 
 /**
  * @generated from message serial.Handshake
  */
-export type Handshake = Message<"serial.Handshake"> & {
+export type Handshake = Message$1<"serial.Handshake"> & {
   /**
    * @generated from field: serial.HandshakeType type = 10;
    */
@@ -27,12 +56,12 @@ export type Handshake = Message<"serial.Handshake"> & {
  * Use `create(HandshakeSchema)` to create a new message.
  */
 export const HandshakeSchema: GenMessage<Handshake> = /*@__PURE__*/
-  messageDesc(file_message, 0);
+  messageDesc(file_message, 1);
 
 /**
  * @generated from message serial.ControlPacket
  */
-export type ControlPacket = Message<"serial.ControlPacket"> & {
+export type ControlPacket = Message$1<"serial.ControlPacket"> & {
   /**
    * @generated from field: uint32 address = 10;
    */
@@ -67,12 +96,12 @@ export type ControlPacket = Message<"serial.ControlPacket"> & {
  * Use `create(ControlPacketSchema)` to create a new message.
  */
 export const ControlPacketSchema: GenMessage<ControlPacket> = /*@__PURE__*/
-  messageDesc(file_message, 1);
+  messageDesc(file_message, 2);
 
 /**
  * @generated from message serial.ControlPacket.DriveCommand
  */
-export type ControlPacket_DriveCommand = Message<"serial.ControlPacket.DriveCommand"> & {
+export type ControlPacket_DriveCommand = Message$1<"serial.ControlPacket.DriveCommand"> & {
   /**
    * @generated from field: serial.ControlPacket.Direction direction = 10;
    */
@@ -89,12 +118,12 @@ export type ControlPacket_DriveCommand = Message<"serial.ControlPacket.DriveComm
  * Use `create(ControlPacket_DriveCommandSchema)` to create a new message.
  */
 export const ControlPacket_DriveCommandSchema: GenMessage<ControlPacket_DriveCommand> = /*@__PURE__*/
-  messageDesc(file_message, 1, 0);
+  messageDesc(file_message, 2, 0);
 
 /**
  * @generated from message serial.ControlPacket.HaltCommand
  */
-export type ControlPacket_HaltCommand = Message<"serial.ControlPacket.HaltCommand"> & {
+export type ControlPacket_HaltCommand = Message$1<"serial.ControlPacket.HaltCommand"> & {
 };
 
 /**
@@ -102,12 +131,12 @@ export type ControlPacket_HaltCommand = Message<"serial.ControlPacket.HaltComman
  * Use `create(ControlPacket_HaltCommandSchema)` to create a new message.
  */
 export const ControlPacket_HaltCommandSchema: GenMessage<ControlPacket_HaltCommand> = /*@__PURE__*/
-  messageDesc(file_message, 1, 1);
+  messageDesc(file_message, 2, 1);
 
 /**
  * @generated from message serial.ControlPacket.EmergencyStopCommand
  */
-export type ControlPacket_EmergencyStopCommand = Message<"serial.ControlPacket.EmergencyStopCommand"> & {
+export type ControlPacket_EmergencyStopCommand = Message$1<"serial.ControlPacket.EmergencyStopCommand"> & {
 };
 
 /**
@@ -115,7 +144,7 @@ export type ControlPacket_EmergencyStopCommand = Message<"serial.ControlPacket.E
  * Use `create(ControlPacket_EmergencyStopCommandSchema)` to create a new message.
  */
 export const ControlPacket_EmergencyStopCommandSchema: GenMessage<ControlPacket_EmergencyStopCommand> = /*@__PURE__*/
-  messageDesc(file_message, 1, 2);
+  messageDesc(file_message, 2, 2);
 
 /**
  * @generated from enum serial.ControlPacket.Direction
@@ -136,7 +165,7 @@ export enum ControlPacket_Direction {
  * Describes the enum serial.ControlPacket.Direction.
  */
 export const ControlPacket_DirectionSchema: GenEnum<ControlPacket_Direction> = /*@__PURE__*/
-  enumDesc(file_message, 1, 0);
+  enumDesc(file_message, 2, 0);
 
 /**
  * @generated from enum serial.HandshakeType
