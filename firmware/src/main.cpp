@@ -5,7 +5,9 @@
  */
 
 #include "pico/stdlib.h"
-
+#include <pb_encode.h>
+#include <pb_decode.h>
+#include "message.pb.h"
 // #define WAIT_TIME_1 58
 // #define WAIT_TIME_0 116
 
@@ -18,78 +20,93 @@
 
 #define ADDRESS 13
 
-#define FORWARD 0b01111111         // drive forward
-#define BACKWARD 0b01011111        // drive backward
-#define HALT 0b01100000            // halt
-#define EMERGENCY_STOP 0b01100001  // emergency stop
+#define FORWARD 0b01111111        // drive forward
+#define BACKWARD 0b01011111       // drive backward
+#define HALT 0b01100000           // halt
+#define EMERGENCY_STOP 0b01100001 // emergency stop
 
-#define LIGHTS_ON 0b10010000   // turn on light
-#define LIGHTS_OFF 0b10000000  // turn off light
+#define LIGHTS_ON 0b10010000  // turn on light
+#define LIGHTS_OFF 0b10000000 // turn off light
 
 #define IDLE_ADDRESS 0xFF
 #define IDLE_COMMAND 0x00
 
-void invert() {
+void invert()
+{
     gpio_put(MINUS, gpio_get(MINUS) ^ 1);
     gpio_put(PLUS, gpio_get(PLUS) ^ 1);
 }
 
-void send0() {
+void send0()
+{
     invert();
     sleep_us(WAIT_TIME_0);
     invert();
     sleep_us(WAIT_TIME_0);
 }
 
-void send1() {
+void send1()
+{
     invert();
     sleep_us(WAIT_TIME_1);
     invert();
     sleep_us(WAIT_TIME_1);
 }
 
-void sendByteMSB(uint8_t byte) {
-    for (int i = 7; i >= 0; i--) {
-        if (byte & (1 << i)) {
+void sendByteMSB(uint8_t byte)
+{
+    for (int i = 7; i >= 0; i--)
+    {
+        if (byte & (1 << i))
+        {
             send1();
-        } else {
+        }
+        else
+        {
             send0();
         }
     }
 }
 
-void output_bit(uint8_t bit_val) {
-    if (bit_val == 0) {
+void output_bit(uint8_t bit_val)
+{
+    if (bit_val == 0)
+    {
         send0();
-    } else {
+    }
+    else
+    {
         send1();
     }
 }
 
-void sendCommand(uint8_t address, uint8_t command) {
+void sendCommand(uint8_t address, uint8_t command)
+{
     // Send Packet preamble. send 14 Ones
-    for (auto i = 0; i < 14; ++i) {
+    for (auto i = 0; i < 14; ++i)
+    {
         output_bit(1);
     }
 
-    output_bit(0);  // termination bit
+    output_bit(0); // termination bit
 
     // send Address byte
     sendByteMSB(address);
 
-    output_bit(0);  // termination bit
+    output_bit(0); // termination bit
 
     // send Instruction byte
     sendByteMSB(command);
 
-    output_bit(0);  // termination bit
+    output_bit(0); // termination bit
 
     // send Error Detection byte
     sendByteMSB(address ^ command);
     output_bit(1);
 }
 
-int main() {
+int main()
+{
     stdio_usb_init();
 
     gpio_init(LED_PIN);
@@ -106,12 +123,14 @@ int main() {
 
     auto time = to_ms_since_boot(get_absolute_time());
 
-    while (true) {
+    while (true)
+    {
         sendCommand(IDLE_ADDRESS, IDLE_COMMAND);
 
         auto newTime = to_ms_since_boot(get_absolute_time());
 
-        if (newTime - time > 1000) {
+        if (newTime - time > 1000)
+        {
             break;
         }
     }
@@ -120,12 +139,14 @@ int main() {
 
     sendCommand(ADDRESS, FORWARD);
 
-    while (true) {
+    while (true)
+    {
         sendCommand(IDLE_ADDRESS, IDLE_COMMAND);
 
         auto newTime = to_ms_since_boot(get_absolute_time());
 
-        if (newTime - time > 5000) {
+        if (newTime - time > 5000)
+        {
             break;
         }
     }
@@ -134,12 +155,14 @@ int main() {
 
     sendCommand(ADDRESS, HALT);
 
-    while (true) {
+    while (true)
+    {
         sendCommand(IDLE_ADDRESS, IDLE_COMMAND);
 
         auto newTime = to_ms_since_boot(get_absolute_time());
 
-        if (newTime - time > 5000) {
+        if (newTime - time > 5000)
+        {
             break;
         }
     }

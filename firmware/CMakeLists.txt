@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.13)
 
+# initialize Nanopb
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../nanopb/extra)
+find_package(Nanopb REQUIRED)
+
+nanopb_generate_cpp(TARGET proto ${CMAKE_CURRENT_SOURCE_DIR}/../protobuf/message.proto)
+
 set(PICO_PLATFORM rp2350)
 # initialize the SDK based on PICO_SDK_PATH
 # note: this must happen before project()
@@ -25,6 +31,7 @@ if (TARGET tinyusb_device)
     # Add pico_stdlib library which aggregates commonly used features
     target_link_libraries(${PROJECT_NAME}
         pico_stdlib
+        proto
     )
 
     # enable usb output, disable uart output
