@@ -2,6 +2,13 @@ syntax = "proto3";
 
 package serial;
 
+message Message {
+    oneof content {
+        Handshake handshake = 10;
+        ControlPacket control_packet = 20;
+    }
+}
+
 message Handshake {
     HandshakeType type = 10;
 }
