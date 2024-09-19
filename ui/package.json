@@ -8,7 +8,8 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"protobuf": "buf generate"
 	},
 	"devDependencies": {
 		"@fortawesome/fontawesome-free": "^6.6.0",
@@ -27,5 +28,10 @@
 		"vite-plugin-mkcert": "^1.17.6"
 	},
 	"type": "module",
-	"packageManager": "yarn@4.5.0"
+	"packageManager": "yarn@4.5.0",
+	"dependencies": {
+		"@bufbuild/buf": "^1.42.0",
+		"@bufbuild/protobuf": "^2.1.0",
+		"@bufbuild/protoc-gen-es": "^2.1.0"
+	}
 }

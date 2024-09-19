@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { goto } from "$app/navigation";
+    import { create, toBinary } from "@bufbuild/protobuf";
+    import { ControlPacketSchema, ControlPacket_Direction } from "$lib/protobuf/message_pb";
 
     let supported = true;
     let writable: WritableStreamDefaultWriter<Uint8Array> | null = null;
@@ -43,6 +44,7 @@
                     { signal: abortSignal }
                 );
                 writable = p.writable.getWriter();
+                console.log("Connected");
             })
             .catch((e) => {
                 console.error(e);
@@ -52,6 +54,25 @@
 
     function onText(text: string) {
         console.log(`🎉: ${text}`);
+    }
+
+    function go() {
+        const packet = create(ControlPacketSchema, {
+            address: 13,
+            command: {
+                case: "drive",
+                value: {
+                    speed: 27,
+                    direction: ControlPacket_Direction.FORWARD,
+                },
+            },
+        });
+        const binary = toBinary(ControlPacketSchema, packet);
+        if (!writable) {
+            console.error("No writable stream");
+            return;
+        }
+        writable.write(binary);
     }
 </script>
 
@@ -70,6 +91,10 @@
                 <button class="btn btn-outline-primary" on:click={connect}>Connect</button>
             </div>
         {/if}
+    </div>
+    <hr />
+    <div>
+        <button on:click={go} class="btn btn-outline-primary">Go</button>
     </div>
 {:else}
     <div class="alert alert-danger">
