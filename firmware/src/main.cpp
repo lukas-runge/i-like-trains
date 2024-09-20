@@ -11,8 +11,8 @@
 
 #include "message.pb.h"
 #include "pico/multicore.h"
-#include "pico/util/queue.h"
 #include "pico/stdlib.h"
+#include "pico/util/queue.h"
 
 // #define WAIT_TIME_1 58
 // #define WAIT_TIME_0 116
@@ -142,39 +142,81 @@ void InputHandler() {
         serial_Message message = serial_Message_init_zero;
 
         if (!pb_decode(&stream, serial_Message_fields, &message)) {
-            // printf("Decoding failed: %s\n", PB_GET_ERROR(&stream));
             continue;
         }
-        
+
         queue_add_blocking(&messageQueue, &message);
 
         gpio_put(LED_PIN, gpio_get(LED_PIN) ^ 1);
     }
 }
 
+void sendHandshakeResponse() {
+    serial_Message response = serial_Message_init_zero;
+
+    uint8_t buffer[SERIAL_MESSAGE_PB_H_MAX_SIZE];
+
+    pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+
+    response.which_content = serial_Message_handshake_tag;
+    response.content.handshake = serial_Handshake_init_default;
+    response.content.handshake.type = serial_HandshakeType_RESPONSE;
+
+    if (!pb_encode(&stream, serial_Message_fields, &response)) {
+        return;
+    }
+
+    sendMessageLength(stream.bytes_written);
+    sendMessage(buffer, stream.bytes_written);
+}
+
+void handleControlPacket(serial_ControlPacket &controlPacket) {
+    uint8_t address = controlPacket.address;
+
+    switch (controlPacket.which_command) {
+        case serial_ControlPacket_drive_tag:
+            printf("Drive command: %d \n", 0b01000000 | (serial_ControlPacket_Direction_FORWARD == controlPacket.command.drive.direction) << 5 | controlPacket.command.drive.speed);
+
+            sendCommand(address, 0b01000000 | (serial_ControlPacket_Direction_FORWARD == controlPacket.command.drive.direction) << 5 | controlPacket.command.drive.speed);
+            break;
+
+        case serial_ControlPacket_halt_tag:
+            sendCommand(address, HALT);
+            break;
+
+        case serial_ControlPacket_emergency_stop_tag:
+            for (size_t i = 0; i < 5; i++) {
+                sendCommand(address, EMERGENCY_STOP);
+            }
+            break;
+
+        case serial_ControlPacket_light_tag:
+            printf("Light command: %d \n", controlPacket.command.light.on);
+            sendCommand(address, controlPacket.command.light.on ? LIGHTS_ON : LIGHTS_OFF);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void handleProtobufMessage(serial_Message &message) {
+    if (message.which_content == serial_Message_handshake_tag) {
+        sendHandshakeResponse();
+        printf("Handshake response sent\n");
+        return;
+    }
+
+    printf("Packet with content: %d\n", message.which_content);
+
+    if (message.which_content == serial_Message_control_packet_tag)
+        handleControlPacket(message.content.control_packet);
+}
+
 void handleQueue() {
     serial_Message message;
 
-    if (queue_try_remove(&messageQueue, &message)) {
-        if (message.which_content == serial_Message_handshake_tag) {
-            serial_Message response = serial_Message_init_zero;
-
-            uint8_t buffer[SERIAL_MESSAGE_PB_H_MAX_SIZE];
-
-            pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-
-            response.which_content = serial_Message_handshake_tag;
-            response.content.handshake = serial_Handshake_init_default;
-            response.content.handshake.type = serial_HandshakeType_RESPONSE;
-
-            if (!pb_encode(&stream, serial_Message_fields, &response)) {
-                return;
-            }
-
-            sendMessageLength(stream.bytes_written);
-            sendMessage(buffer, stream.bytes_written);
-        }
-    }
+    if (queue_try_remove(&messageQueue, &message)) handleProtobufMessage(message);
 }
 
 int main() {
@@ -199,45 +241,7 @@ int main() {
     auto time = to_ms_since_boot(get_absolute_time());
 
     while (true) {
-        while (true) {
-            sendCommand(IDLE_ADDRESS, IDLE_COMMAND);
-            handleQueue();
-
-            auto newTime = to_ms_since_boot(get_absolute_time());
-
-            if (newTime - time > 1000) {
-                break;
-            }
-        }
-
-        time = to_ms_since_boot(get_absolute_time());
-
-        sendCommand(ADDRESS, FORWARD);
-
-        while (true) {
-            sendCommand(IDLE_ADDRESS, IDLE_COMMAND);
-            handleQueue();
-
-            auto newTime = to_ms_since_boot(get_absolute_time());
-
-            if (newTime - time > 5000) {
-                break;
-            }
-        }
-
-        time = to_ms_since_boot(get_absolute_time());
-
-        sendCommand(ADDRESS, HALT);
-
-        while (true) {
-            sendCommand(IDLE_ADDRESS, IDLE_COMMAND);
-            handleQueue();
-
-            auto newTime = to_ms_since_boot(get_absolute_time());
-
-            if (newTime - time > 5000) {
-                break;
-            }
-        }
+        sendCommand(IDLE_ADDRESS, IDLE_COMMAND);
+        handleQueue();
     }
 }
