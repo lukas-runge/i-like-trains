@@ -16,48 +16,8 @@
 
 	type TrackType = {
 		name: string;
-		ends: { id: number; x: number; y: number; angle: number }[];
 		lines: Array<Curve | StraightLine>;
 	};
-
-
-	function toRadians(angle: number) {
-		return (angle * Math.PI) / 180;
-	}
-
-	function getCoordsOfCircleSegment(
-		radius: number,
-		angle: number,
-		direction: "left" | "right",
-		id?: string
-	) {
-		if (direction == "right") {
-			angle -= 90;
-
-			const radians = toRadians(angle);
-			return [
-				{ x: 0, y: 0, angle: 0 },
-				{
-					id,
-					x: radius * Math.cos(radians),
-					y: radius * Math.sin(radians) + radius,
-					angle: angle + 90
-				}
-			];
-		} else {
-			angle = 90 - angle;
-			const radians = toRadians(angle);
-			return [
-				{ x: 0, y: 0, angle: 0 },
-				{
-					id,
-					x: radius * Math.cos(radians),
-					y: radius * Math.sin(radians) - radius,
-					angle: angle - 90
-				}
-			];
-		}
-	}
 
 	const CURVES = {
 		R1: 36.0,
@@ -73,7 +33,6 @@
 	const TRACK_TYPES = {
 		straight: {
 			name: "Straight",
-			ends: [{ id: 1, x: 25, y: 0, angle: 0 }],
 			lines: [{ type: "straight", length: 25 }]
 		},
 		...Object.fromEntries(
@@ -82,7 +41,6 @@
 					`curve${key}${direction.charAt(0).toUpperCase() + direction.slice(1)}`,
 					{
 						name: `Curve ${key}`,
-						ends: getCoordsOfCircleSegment(radius, CURVE_ANGLE, direction),
 						lines: [
 							{
 								type: "curve",
@@ -102,10 +60,6 @@
 					`switch${key}${direction.charAt(0).toUpperCase() + direction.slice(1)}`,
 					{
 						name: `Switch ${direction}`,
-						ends: [
-							{ id: 1, x: 25, y: 0, angle: 0 },
-							getCoordsOfCircleSegment(radius, CURVE_ANGLE, direction, `switch${direction.charAt(0).toUpperCase() + direction.slice(1)}`)[1]
-						],
 						lines: [
 							{ type: "straight", length: 25 },
 							{ type: "curve", radius, angle: CURVE_ANGLE, direction }
@@ -117,45 +71,40 @@
 	console.log(TRACK_TYPES);
 
 	type Track = {
-		id: number;
+		id?: number;
 		type: TrackType;
 		startFrom?: [number, number];
 	};
 
 	let trackPlan: Track[] = [
-		//{ id: 1, type: TRACK_TYPES.straight },
-		{ id: 5, type: TRACK_TYPES.switchR1Left },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Left },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Left },
-		{ id: 5, type: TRACK_TYPES.curveR1Left },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		{ id: 5, type: TRACK_TYPES.curveR1Right },
-		// { id: 1, type: TRACK_TYPES.straight },
-		// { id: 2, type: TRACK_TYPES.straight },
-		// { id: 3, type: TRACK_TYPES.straight },
-		// { id: 5, type: TRACK_TYPES.curveR1Right },
-		// { id: 5, type: TRACK_TYPES.curveR1Right },
-		// { id: 5, type: TRACK_TYPES.curveR1Right },
-		// { id: 4, type: TRACK_TYPES.straight },
-		// { id: 5, type: TRACK_TYPES.curveR1Right },
-		// { id: 5, type: TRACK_TYPES.curveR1Right },
-		// { id: 5, type: TRACK_TYPES.curveR1Right },
-		// { id: 3, type: TRACK_TYPES.straight },
+		{ id: 0, type: TRACK_TYPES.switchR1Left },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Right, startFrom: [0, 1]},
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.curveR1Right },
 	];
+
+	for (const track of trackPlan) {
+		if (track.id === undefined) {
+			track.id = Math.max(...trackPlan.map((t) => t.id ?? 0)) + 1;
+		}
+	}
+	console.log(trackPlan);
 
 	let engine: BABYLON.Engine;
 	let scene: BABYLON.Scene;
@@ -180,36 +129,35 @@
 		camera.attachControl(canvas, true);
 		const light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, -1), scene);
 
-		const basicMaterial = new BABYLON.StandardMaterial("basicMaterial", scene);
+		const trackMaterial = new BABYLON.StandardMaterial("basicMaterial", scene);
 		const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
 		const grayColor = new BABYLON.Color3(0.5, 0.5, 0.5);
-		const blackColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-		basicMaterial.diffuseColor = grayColor;
-		groundMaterial.diffuseColor = blackColor;
+		const whiteColor = new BABYLON.Color3(2, 2, 2);
+		const redColor = new BABYLON.Color3(1, 0, 0);
+		trackMaterial.diffuseColor = grayColor;
+		trackMaterial.specularPower = 1000000;
+		const trackMaterialRed = new BABYLON.StandardMaterial("trackMaterialRed", scene);
+		trackMaterialRed.diffuseColor = redColor;
+		trackMaterialRed.specularPower = 1000000;
+		groundMaterial.diffuseColor = whiteColor;
+		groundMaterial.specularPower = 1000000;
 
-		const size = 2;
+		const width = 2;
+		const height = 0.4;
 		const trackCrossSectionShape = [
 			new BABYLON.Vector3(0, 0, 0),
-			new BABYLON.Vector3(0, size, 0),
-			new BABYLON.Vector3(size, size, 0),
-			new BABYLON.Vector3(size, 0, 0),
+			new BABYLON.Vector3(0, height, 0),
+			new BABYLON.Vector3(width, height, 0),
+			new BABYLON.Vector3(width, 0, 0),
 			new BABYLON.Vector3(0, 0, 0)
 		];
 
-		// put cube in center of scene
-		const cube = BABYLON.MeshBuilder.CreateBox("cube", { size: 1 }, scene);
-
-		const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100 }, scene);
+		const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 1000, height: 1000 }, scene);
 		ground.position.y = -0.5;
 		ground.material = groundMaterial;
 
-		type CreatorReturn = {
-			endPosition: BABYLON.Vector3;
-			endRotation: BABYLON.Vector3;
-		}
-
 		// Function to create a straight track
-		function createStraight(length: number, position: BABYLON.Vector3, rotation: BABYLON.Vector3): CreatorReturn {
+		function createStraight(length: number, pandr: PandR, material: BABYLON.Material) {
 			const points = [
 				new BABYLON.Vector3(0, 0, 0),
 				new BABYLON.Vector3(length, 0, 0)
@@ -221,19 +169,22 @@
 					shape: trackCrossSectionShape, path: points, cap: BABYLON.Mesh.NO_CAP, sideOrientation: BABYLON.Mesh.DOUBLESIDE},
 				scene
 			);
-			track.material = basicMaterial;
-			track.rotation = rotation.clone();
-			track.position = position.clone();
+			track.material = material;
+			track.rotation = pandr.rotation.clone();
+			track.position = pandr.position.clone();
 
 
 			return {
-				endPosition: position.add(new BABYLON.Vector3(length, 0, 0).rotateByQuaternionToRef(rotation.toQuaternion(), new BABYLON.Vector3())),
-				endRotation: rotation
+				pandr: {
+					position: pandr.position.add(new BABYLON.Vector3(length, 0, 0).rotateByQuaternionToRef(pandr.rotation.toQuaternion(), new BABYLON.Vector3())),
+					rotation: pandr.rotation
+				} as PandR,
+				mesh: track,
 			};
 		}
 
 		// Function to create a curve track
-		function createCurve(radius: number, angle: number, direction: "left" | "right", position: BABYLON.Vector3, rotation: BABYLON.Vector3): CreatorReturn {
+		function createCurve(radius: number, angle: number, direction: "left" | "right", pandr: PandR, material: BABYLON.Material) {
 			const points = [];
 			const angleOffset = 90;
 			const sign = (direction == "left" ? 1 : -1);
@@ -248,34 +199,96 @@
 				{ shape: trackCrossSectionShape, path: points, cap: BABYLON.Mesh.NO_CAP, sideOrientation: BABYLON.Mesh.DOUBLESIDE },
 				scene
 			);
-			track.material = basicMaterial;
-			track.position = position.clone();
-			track.rotation = rotation.clone();
+			track.material = material;
+			track.position = pandr.position.clone();
+			track.rotation = pandr.rotation.clone();
 			track.position.y -= 0.01;
 			return {
-				endPosition: points[points.length - 1].rotateByQuaternionToRef(rotation.toQuaternion(), new BABYLON.Vector3()).addInPlace(position),
-				endRotation: rotation.add(new BABYLON.Vector3(0, sign * -angle * Math.PI / 180, 0))
+				pandr: {
+					position: points[points.length - 1].rotateByQuaternionToRef(pandr.rotation.toQuaternion(), new BABYLON.Vector3()).addInPlace(pandr.position),
+					rotation: pandr.rotation.add(new BABYLON.Vector3(0, sign * -angle * Math.PI / 180, 0))
+				},
+				mesh: track
 			};
 
 		}
 
+		type PandR = {
+			position: BABYLON.Vector3;
+			rotation: BABYLON.Vector3;
+		};
+
 		// Render each track in the track plan
-		let currentPosition = new BABYLON.Vector3(0, 0, 0);
-		let currentRotation = new BABYLON.Vector3(0, 0, 0);
+		let current: PandR = { position: new BABYLON.Vector3(0, 0, 0), rotation: new BABYLON.Vector3(0, 0, 0) };
+		let last: Record<number, PandR[]> = {};
+
+		type Switch = {
+			straight: BABYLON.Mesh;
+			curve: BABYLON.Mesh;
+			currentDirection: "straight" | "curve";
+		};
+
+		const switches = new Set<Switch>();
+
 		for (const track of trackPlan) {
-			let end: CreatorReturn | undefined;
-			for (const line of track.type.lines) {
+			if (track.startFrom) {
+				current = last[track.startFrom[0]][track.startFrom[1]];
+			}
+
+			last[track.id!] = [];
+
+			const material = trackMaterial;
+			const meshes = [];
+			for (let i = 0; i < track.type.lines.length; i++) {
+				const line = track.type.lines[i];
 				if (line.type === "straight") {
-					end = createStraight(line.length, currentPosition, currentRotation);
+					const { pandr, mesh } = createStraight(line.length, current, material);
+					last[track.id!].push(pandr);
+					meshes.push(mesh);
 				} else if (line.type === "curve") {
-					end = createCurve(line.radius, line.angle, line.direction, currentPosition, currentRotation);
+					const { pandr, mesh } = createCurve(line.radius, line.angle, line.direction, current, material);
+					last[track.id!].push(pandr);
+					meshes.push(mesh);
 				}
 			}
-			if (end) {
-				currentPosition = end.endPosition.clone();
-				currentRotation = end.endRotation.clone();
+			if (track.type.name.includes("Switch")) {
+				switches.add({
+					straight: meshes[0],
+					curve: meshes[1],
+					currentDirection: "straight",
+				});
 			}
+			current = last[track.id!][0];
 		}
+
+		function setSwitchDirection(switchE: Switch, direction: "straight" | "curve") {
+			if (direction === "straight") {
+				switchE.straight.material = trackMaterialRed;
+				switchE.curve.material = trackMaterial;
+				switchE.curve.position.y = -0.01;
+				switchE.straight.position.y = 0.0;
+			} else {
+				switchE.straight.material = trackMaterial;
+				switchE.curve.material = trackMaterialRed;
+				switchE.straight.position.y = -0.01;
+				switchE.curve.position.y = 0.0;
+			}
+			switchE.currentDirection = direction;
+		}
+
+		for (const switchE of switches) {
+			setSwitchDirection(switchE, switchE.currentDirection);
+		}
+
+		scene.onPointerPick = (_, pickResult) => {
+			if (pickResult.hit && pickResult.pickedMesh) {
+				for (const switchE of switches) {
+					if (pickResult.pickedMesh === switchE.straight || pickResult.pickedMesh === switchE.curve) {
+						setSwitchDirection(switchE, switchE.currentDirection === "straight" ? "curve" : "straight");
+					}
+				}
+			}
+		};
 
 		engine.runRenderLoop(() => {
 			scene.render();
