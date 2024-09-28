@@ -20,9 +20,6 @@
 	function toRadians(angle: number) {
 		return (angle * Math.PI) / 180;
 	}
-	function fromRadians(radians: number) {
-		return (radians * 180) / Math.PI;
-	}
 
 	function getCoordsOfCircleSegment(
 		radius: number,
@@ -72,10 +69,7 @@
 	const TRACK_TYPES = {
 		straight: {
 			name: "Straight",
-			ends: [
-				{ id: 1, x: 0, y: 0, angle: 0 },
-				{ id: 2, x: 25, y: 0, angle: 0 }
-			],
+			ends: [{ id: 1, x: 25, y: 0, angle: 0 }],
 			lines: [{ type: "straight", length: 25 }]
 		},
 		...Object.fromEntries(
@@ -100,8 +94,7 @@
 		switchLeft: {
 			name: "Switch Left",
 			ends: [
-				{ id: 1, x: 0, y: 0, angle: 0 },
-				{ id: 2, x: 25, y: 0, angle: 0 },
+				{ id: 1, x: 25, y: 0, angle: 0 },
 				getCoordsOfCircleSegment(CURVES.R2, CURVE_ANGLE, "left", "switchLeft")[1]
 			],
 			lines: [
@@ -112,9 +105,8 @@
 		switchRight: {
 			name: "Switch Right",
 			ends: [
-				{ id: 1, x: 0, y: 0, angle: 0 },
-				{ id: 2, x: 25, y: 0, angle: 0 },
-				getCoordsOfCircleSegment(CURVES.R2, CURVE_ANGLE, "right", "switchRight")[1]
+				{ id: 1, x: 25, y: 0, angle: 0 },
+				getCoordsOfCircleSegment(CURVES.R2, CURVE_ANGLE, "right", "switchRight")[0]
 			],
 			lines: [
 				{ type: "straight", length: 25 },
@@ -126,21 +118,30 @@
 	type Track = {
 		id: number;
 		type: TrackType;
-		startFrom?: number;
+		startFrom?: [number, number];
 	};
 
 	let trackPlan = [
-		{ type: TRACK_TYPES.curveR1Right },
-		{ type: TRACK_TYPES.switchLeft },
-		{ type: TRACK_TYPES.straight },
-		{ type: TRACK_TYPES.curveR2Right },
-		{ type: TRACK_TYPES.straight },
-		{ type: TRACK_TYPES.curveR2Right },
-		{ type: TRACK_TYPES.straight },
-		{ type: TRACK_TYPES.switchRight },
-		{ type: TRACK_TYPES.straight },
-		{ type: TRACK_TYPES.straight },
+		// { type: TRACK_TYPES.curveR1Right },
+		// { id: 1, type: TRACK_TYPES.switchLeft },
+		// { type: TRACK_TYPES.straight },
+		// { type: TRACK_TYPES.curveR2Right },
+		// { type: TRACK_TYPES.straight },
+		// { type: TRACK_TYPES.curveR2Right },
+		// { type: TRACK_TYPES.straight },
+		// { type: TRACK_TYPES.switchRight },
+		// { type: TRACK_TYPES.straight },
+		// { type: TRACK_TYPES.straight },
+		// { type: TRACK_TYPES.straight },
+		// { type: TRACK_TYPES.straight },
+		// { type: TRACK_TYPES.straight }
+		{ id: 1, type: TRACK_TYPES.switchLeft },
+		// { type: TRACK_TYPES.straight },
+		// { type: TRACK_TYPES.curveR1Right },
 		{ type: TRACK_TYPES.straight }
+		// { type: TRACK_TYPES.straight, startFrom: [1, 1] },
+		// { type: TRACK_TYPES.curveR1Left },
+		// { type: TRACK_TYPES.curveR1Right }
 	] as Track[];
 
 	let i = 10000;
@@ -152,10 +153,16 @@
 
 	let calculatedTrackPlan = [] as { track: Track; x: number; y: number; rotation: number }[];
 
+	type CurrentData = {
+		x: number;
+		y: number;
+		rotation: number;
+	};
+
 	function buildTrackPlan() {
-		let currentX = 0;
-		let currentY = 0;
-		let currentRotation = 0;
+		const perId: Record<number, CurrentData[]> = {};
+		let current: CurrentData = { x: 0, y: 0, rotation: 0 };
+
 		const visitedTrackIds = new Set<number>();
 
 		for (let i = 0; i < trackPlan.length; i++) {
@@ -168,21 +175,46 @@
 
 			visitedTrackIds.add(track.id);
 
+			let end = track.type.ends[track.type.ends.length - 1];
+			if (track.startFrom) {
+				const [id, endIndex] = track.startFrom;
+				const startFromTrack = trackPlan.find((t) => t.id === id);
+				if (!startFromTrack) {
+					throw new Error(`Track with id ${id} not found`);
+				}
+				current = perId[startFromTrack.id][endIndex];
+				end = startFromTrack.type.ends[endIndex];
+
+				console.log("Current", current);
+			}
+
 			calculatedTrackPlan.push({
 				track,
-				x: currentX,
-				y: currentY,
-				rotation: currentRotation
+				x: current.x,
+				y: current.y,
+				rotation: current.rotation
 			});
 
-			let end = track.type.ends[track.type.ends.length - 1];
-			const radians = toRadians(currentRotation);
-			const transformedEndX = end.x * Math.cos(radians) - end.y * Math.sin(radians);
-			const transformedEndY = end.x * Math.sin(radians) + end.y * Math.cos(radians);
-			currentX += transformedEndX;
-			currentY += transformedEndY;
-			currentRotation += end.angle;
+			const radians = toRadians(current.rotation);
+			perId[track.id] = [];
+			for (let i = 0; i < track.type.ends.length; i++) {
+				const dend = track.type.ends[i];
+				const transformedEndX = dend.x * Math.cos(radians) - dend.y * Math.sin(radians);
+				const transformedEndY = dend.x * Math.sin(radians) + dend.y * Math.cos(radians);
+
+				const endPosition = {
+					x: current.x + transformedEndX,
+					y: current.y + transformedEndY,
+					rotation: current.rotation + dend.angle
+				};
+				if (end == dend) {
+					current = endPosition;
+				}
+
+				perId[track.id][i] = { ...endPosition };
+			}
 		}
+		console.log(perId);
 	}
 
 	function renderTrack(track: Track) {

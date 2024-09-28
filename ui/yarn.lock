@@ -15,6 +15,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babylonjs/core@npm:^7.27.0":
+  version: 7.27.0
+  resolution: "@babylonjs/core@npm:7.27.0"
+  checksum: 10c0/a0e88bc53e052b6f7e2847a477777016123d4e6839c5fd2abae4765c715725f1e95321daf4297c41751b3bcf34c864019327ef17f104b7f9dfa798f7910f09f5
+  languageName: node
+  linkType: hard
+
+"@babylonjs/materials@npm:^7.27.0":
+  version: 7.27.0
+  resolution: "@babylonjs/materials@npm:7.27.0"
+  peerDependencies:
+    "@babylonjs/core": ^7.0.0
+  checksum: 10c0/430b23b26b77a9007e34aca5827f5bc3e70bd8469eff8efdc0d96254cff1be172b2575af1be294d580d2765ffe435830048abc54f82169939128179d4fb05c4a
+  languageName: node
+  linkType: hard
+
 "@bufbuild/buf-darwin-arm64@npm:1.42.0":
   version: 1.42.0
   resolution: "@bufbuild/buf-darwin-arm64@npm:1.42.0"
@@ -2654,6 +2670,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "trains-gui@workspace:."
   dependencies:
+    "@babylonjs/core": "npm:^7.27.0"
+    "@babylonjs/materials": "npm:^7.27.0"
     "@bufbuild/buf": "npm:^1.42.0"
     "@bufbuild/protobuf": "npm:^2.1.0"
     "@bufbuild/protoc-gen-es": "npm:^2.1.0"
