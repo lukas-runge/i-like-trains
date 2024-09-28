@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import * as BABYLON from "@babylonjs/core";
+	import SwitchIcon from "./SwitchIcon.svelte";
 
 	type Curve = {
 		type: "curve";
@@ -109,6 +110,17 @@
 	let engine: BABYLON.Engine;
 	let scene: BABYLON.Scene;
 	let canvas: HTMLCanvasElement;
+	let trackMaterial: BABYLON.StandardMaterial;
+	let trackMaterialRed: BABYLON.StandardMaterial;
+
+	type Switch = {
+		id: number;
+		direction: "left" | "right";
+		straight: BABYLON.Mesh;
+		curve: BABYLON.Mesh;
+		currentDirection: "straight" | "curve";
+	};
+	let switches: Switch[] = [];
 
 	onMount(() => {
 		// Create BabylonJS scene
@@ -129,14 +141,14 @@
 		camera.attachControl(canvas, true);
 		const light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, -1), scene);
 
-		const trackMaterial = new BABYLON.StandardMaterial("basicMaterial", scene);
+		trackMaterial = new BABYLON.StandardMaterial("basicMaterial", scene);
 		const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
 		const grayColor = new BABYLON.Color3(0.5, 0.5, 0.5);
 		const whiteColor = new BABYLON.Color3(2, 2, 2);
 		const redColor = new BABYLON.Color3(1, 0, 0);
 		trackMaterial.diffuseColor = grayColor;
 		trackMaterial.specularPower = 1000000;
-		const trackMaterialRed = new BABYLON.StandardMaterial("trackMaterialRed", scene);
+		trackMaterialRed = new BABYLON.StandardMaterial("trackMaterialRed", scene);
 		trackMaterialRed.diffuseColor = redColor;
 		trackMaterialRed.specularPower = 1000000;
 		groundMaterial.diffuseColor = whiteColor;
@@ -222,14 +234,6 @@
 		let current: PandR = { position: new BABYLON.Vector3(0, 0, 0), rotation: new BABYLON.Vector3(0, 0, 0) };
 		let last: Record<number, PandR[]> = {};
 
-		type Switch = {
-			straight: BABYLON.Mesh;
-			curve: BABYLON.Mesh;
-			currentDirection: "straight" | "curve";
-		};
-
-		const switches = new Set<Switch>();
-
 		for (const track of trackPlan) {
 			if (track.startFrom) {
 				current = last[track.startFrom[0]][track.startFrom[1]];
@@ -252,28 +256,15 @@
 				}
 			}
 			if (track.type.name.includes("Switch")) {
-				switches.add({
+				switches = [...switches, ({
 					straight: meshes[0],
 					curve: meshes[1],
 					currentDirection: "straight",
-				});
+					id: track.id!,
+					direction: track.type.name.includes("left") ? "left" : "right"
+				})];
 			}
 			current = last[track.id!][0];
-		}
-
-		function setSwitchDirection(switchE: Switch, direction: "straight" | "curve") {
-			if (direction === "straight") {
-				switchE.straight.material = trackMaterialRed;
-				switchE.curve.material = trackMaterial;
-				switchE.curve.position.y = -0.01;
-				switchE.straight.position.y = 0.0;
-			} else {
-				switchE.straight.material = trackMaterial;
-				switchE.curve.material = trackMaterialRed;
-				switchE.straight.position.y = -0.01;
-				switchE.curve.position.y = 0.0;
-			}
-			switchE.currentDirection = direction;
 		}
 
 		for (const switchE of switches) {
@@ -298,14 +289,53 @@
 			engine.resize();
 		});
 	});
+
+	function setSwitchDirection(switchE: Switch, direction: "straight" | "curve") {
+		if (direction === "straight") {
+			switchE.straight.material = trackMaterialRed;
+			switchE.curve.material = trackMaterial;
+			switchE.curve.position.y = -0.01;
+			switchE.straight.position.y = 0.0;
+		} else {
+			switchE.straight.material = trackMaterial;
+			switchE.curve.material = trackMaterialRed;
+			switchE.straight.position.y = -0.01;
+			switchE.curve.position.y = 0.0;
+		}
+		switchE.currentDirection = direction;
+		switches = switches;
+	}
 </script>
 
-<canvas id="renderCanvas"></canvas>
+<div class="row">
+	<div class="col-sm-3">
+		<h5>Switches</h5>
+		<ul class="list-group">
+			{#each switches as switchE}
+				<li class="list-group-item">
+					<div class="d-flex justify-content-between">
+						<div>Weiche {switchE.id}</div>
+						<button on:click={() => setSwitchDirection(switchE, switchE.currentDirection === "straight" ? "curve" : "straight")} class="btn btn-outline-primary btn-sm">
+							<SwitchIcon active={switchE.currentDirection} direction={switchE.direction} />
+							<i class="fas fa-exchange-alt"></i>
+						</button>
+					</div>
+				</li>
+			{/each}
+		</ul>
+	</div>
+	<div class="col-sm-9">
+		<canvas id="renderCanvas"></canvas>
+	</div>
+</div>
 
 <style>
 	canvas {
 		display: block;
 		width: 100%;
 		height: 100%;
+
+		outline: none;
+  		-webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 	}
 </style>
