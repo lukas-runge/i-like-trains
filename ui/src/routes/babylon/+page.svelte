@@ -20,6 +20,45 @@
 		lines: Array<Curve | StraightLine>;
 	};
 
+
+	function toRadians(angle: number) {
+		return (angle * Math.PI) / 180;
+	}
+
+	function getCoordsOfCircleSegment(
+		radius: number,
+		angle: number,
+		direction: "left" | "right",
+		id?: string
+	) {
+		if (direction == "right") {
+			angle -= 90;
+
+			const radians = toRadians(angle);
+			return [
+				{ x: 0, y: 0, angle: 0 },
+				{
+					id,
+					x: radius * Math.cos(radians),
+					y: radius * Math.sin(radians) + radius,
+					angle: angle + 90
+				}
+			];
+		} else {
+			angle = 90 - angle;
+			const radians = toRadians(angle);
+			return [
+				{ x: 0, y: 0, angle: 0 },
+				{
+					id,
+					x: radius * Math.cos(radians),
+					y: radius * Math.sin(radians) - radius,
+					angle: angle - 90
+				}
+			];
+		}
+	}
+
 	const CURVES = {
 		R1: 36.0,
 		R2: 43.75,
@@ -37,28 +76,45 @@
 			ends: [{ id: 1, x: 25, y: 0, angle: 0 }],
 			lines: [{ type: "straight", length: 25 }]
 		},
-		curveR1Right: {
-			name: "Curve R1 Right",
-			ends: [{ id: 1, x: CURVES.R1, y: CURVES.R1, angle: 90 }],
-			lines: [{ type: "curve", radius: CURVES.R1, angle: CURVE_ANGLE, direction: "right" }]
-		},
-		curveR1Left: {
-			name: "Curve R1 Left",
-			ends: [{ id: 1, x: CURVES.R1, y: CURVES.R1, angle: 90 }],
-			lines: [{ type: "curve", radius: CURVES.R1, angle: CURVE_ANGLE, direction: "left" }]
-		},
-		switchLeft: {
-			name: "Switch Left",
-			ends: [
-				{ id: 1, x: 25, y: 0, angle: 0 },
-				{ id: 2, x: CURVES.R2, y: CURVES.R1, angle: 90 }
-			],
-			lines: [
-				{ type: "straight", length: 25 },
-				{ type: "curve", radius: CURVES.R1, angle: CURVE_ANGLE, direction: "left" }
-			]
-		}
+		...Object.fromEntries(
+			(["right", "left"] as const).flatMap((direction) =>
+				Object.entries(CURVES).map(([key, radius]) => [
+					`curve${key}${direction.charAt(0).toUpperCase() + direction.slice(1)}`,
+					{
+						name: `Curve ${key}`,
+						ends: getCoordsOfCircleSegment(radius, CURVE_ANGLE, direction),
+						lines: [
+							{
+								type: "curve",
+								radius,
+								angle: CURVE_ANGLE,
+								direction
+							}
+						]
+					}
+				])
+			)
+		),
+
+		...Object.fromEntries(
+			(["right", "left"] as const).flatMap((direction) =>
+				Object.entries(CURVES).map(([key, radius]) => [
+					`switch${key}${direction.charAt(0).toUpperCase() + direction.slice(1)}`,
+					{
+						name: `Switch ${direction}`,
+						ends: [
+							{ id: 1, x: 25, y: 0, angle: 0 },
+							getCoordsOfCircleSegment(radius, CURVE_ANGLE, direction, `switch${direction.charAt(0).toUpperCase() + direction.slice(1)}`)[1]
+						],
+						lines: [
+							{ type: "straight", length: 25 },
+							{ type: "curve", radius, angle: CURVE_ANGLE, direction }
+						]
+					},
+				]))),
 	} as Record<string, TrackType>;
+
+	console.log(TRACK_TYPES);
 
 	type Track = {
 		id: number;
@@ -68,7 +124,7 @@
 
 	let trackPlan: Track[] = [
 		//{ id: 1, type: TRACK_TYPES.straight },
-		{ id: 5, type: TRACK_TYPES.switchLeft },
+		{ id: 5, type: TRACK_TYPES.switchR1Left },
 		{ id: 5, type: TRACK_TYPES.curveR1Right },
 		{ id: 5, type: TRACK_TYPES.curveR1Right },
 		{ id: 5, type: TRACK_TYPES.curveR1Left },
@@ -195,6 +251,7 @@
 			track.material = basicMaterial;
 			track.position = position.clone();
 			track.rotation = rotation.clone();
+			track.position.y -= 0.01;
 			return {
 				endPosition: points[points.length - 1].rotateByQuaternionToRef(rotation.toQuaternion(), new BABYLON.Vector3()).addInPlace(position),
 				endRotation: rotation.add(new BABYLON.Vector3(0, sign * -angle * Math.PI / 180, 0))
