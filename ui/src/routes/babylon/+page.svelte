@@ -8,6 +8,7 @@
 		radius: number;
 		angle: number;
 		direction: "left" | "right";
+		flipped?: boolean;
 	};
 
 	type StraightLine = {
@@ -21,6 +22,7 @@
 	};
 
 	const CURVES = {
+		R0: 20.0,
 		R1: 36.0,
 		R2: 43.75,
 		R3: 51.5,
@@ -35,6 +37,14 @@
 		straight: {
 			name: "Straight",
 			lines: [{ type: "straight", length: 25 }]
+		},
+		straightShort: {
+			name: "Straight Short",
+			lines: [{ type: "straight", length: 9 }]
+		},
+		straightShort2: {
+			name: "Straight Short",
+			lines: [{ type: "straight", length: 7 }]
 		},
 		...Object.fromEntries(
 			(["right", "left"] as const).flatMap((direction) =>
@@ -67,6 +77,18 @@
 						]
 					},
 				]))),
+		...Object.fromEntries(
+			(["right", "left"] as const).flatMap((direction) =>
+				Object.entries(CURVES).map(([key, radius]) => [
+					`switchDown${key}${direction.charAt(0).toUpperCase() + direction.slice(1)}`,
+					{
+						name: `Switch Down ${direction}`,
+						lines: [
+							{ type: "straight", length: 25 },
+							{ type: "curve", radius, angle: CURVE_ANGLE, direction, flipped: true }
+						]
+					},
+				]))),
 	} as Record<string, TrackType>;
 
 	console.log(TRACK_TYPES);
@@ -75,29 +97,167 @@
 		id?: number;
 		type: TrackType;
 		startFrom?: [number, number];
+		highlight?: boolean;
 	};
 
 	let trackPlan: Track[] = [
-		{ id: 0, type: TRACK_TYPES.switchR1Left },
-		{ type: TRACK_TYPES.curveR1Right },
-		{ type: TRACK_TYPES.curveR1Right },
+		{ id: 7, type: TRACK_TYPES.switchR1Left },
+
+		// Abstell 1
+		{ type: TRACK_TYPES.curveR1Left, startFrom: [7, 1] },
 		{ type: TRACK_TYPES.curveR1Left },
-		{ type: TRACK_TYPES.curveR1Right },
-		{ type: TRACK_TYPES.curveR1Right, startFrom: [0, 1]},
-		{ type: TRACK_TYPES.curveR1Right },
-		{ type: TRACK_TYPES.curveR1Right },
-		{ type: TRACK_TYPES.curveR1Left },
-		{ type: TRACK_TYPES.curveR1Right },
-		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+
+		// Außen 4
+		{ id: 12, type: TRACK_TYPES.switchR1Left, startFrom: [7, 0] },
 		{ type: TRACK_TYPES.curveR1Left },
 		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ id: 14, type: TRACK_TYPES.switchR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+
+		// Ue1
+		{ type: TRACK_TYPES.curveR1Left, startFrom: [14, 1] },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ id: 13, type: TRACK_TYPES.switchDownR1Left },
+		{ id: 1, type: TRACK_TYPES.switchDownR1Left },
+
+		// außen 1
+		{ type: TRACK_TYPES.straight },
+		{ id: 11, type: TRACK_TYPES.switchR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+
+		// Außen 3
+		{ type: TRACK_TYPES.curveR1Left, startFrom: [12, 1]},
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ id: 6, type: TRACK_TYPES.switchR1Left },
+
+		// Gleis 3
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+
+		// Gleis 2
+		{ type: TRACK_TYPES.curveR1Left, startFrom: [6, 1] },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.straight },
+		{ id: 5, type: TRACK_TYPES.switchDownR1Left },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straight },
+		{ id: 4, type: TRACK_TYPES.switchDownR1Left },
+		{ id: 3, type: TRACK_TYPES.switchR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+
+		// Innen 1
+		{ type: TRACK_TYPES.curveR1Left, startFrom: [3, 1] },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+
+		{ type: TRACK_TYPES.curveR1Left, startFrom: [11, 1] },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ id: 10, type: TRACK_TYPES.switchDownR1Left },
+		{ id: 2, type: TRACK_TYPES.switchR1Left },
+
+		// Innen 2
+		{ type: TRACK_TYPES.curveR1Right, startFrom: [2, 1] },
+		{ id: 9, type: TRACK_TYPES.switchDownR1Left },
+		{ id: 8, type: TRACK_TYPES.switchDownR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.straightShort },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.curveR1Left },
+		{ type: TRACK_TYPES.straightShort },
+		{ type: TRACK_TYPES.straightShort },
+
+		// Gleis 1
+		{ type: TRACK_TYPES.curveR1Left, startFrom: [4, 1] },
+		{ type: TRACK_TYPES.straightShort },
+		{ id: 15, type: TRACK_TYPES.switchR1Right },
+
+		// Abstell 4
 		{ type: TRACK_TYPES.curveR1Right },
 		{ type: TRACK_TYPES.curveR1Right },
 		{ type: TRACK_TYPES.curveR1Right },
 		{ type: TRACK_TYPES.curveR1Right },
 		{ type: TRACK_TYPES.curveR1Right },
 		{ type: TRACK_TYPES.curveR1Right },
+
+		// Abstell 5
+		{ type: TRACK_TYPES.curveR1Right, startFrom: [15, 1] },
 		{ type: TRACK_TYPES.curveR1Right },
+		{ type: TRACK_TYPES.straight },
+
+		// Abstell 2
+		{ type: TRACK_TYPES.curveR1Left, startFrom: [9, 1] },
+		{ type: TRACK_TYPES.straight },
+
+		// Oben
+		{ type: TRACK_TYPES.straight, startFrom: [8, 1]},
+		{ type: TRACK_TYPES.curveR0Right },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.curveR0Left },
+		{ type: TRACK_TYPES.curveR0Left },
+		{ type: TRACK_TYPES.curveR0Left },
+		{ type: TRACK_TYPES.curveR0Left },
+		{ type: TRACK_TYPES.curveR0Left },
+		{ type: TRACK_TYPES.curveR0Left },
+		{ type: TRACK_TYPES.curveR0Left },
+		{ type: TRACK_TYPES.curveR0Left },
+		{ type: TRACK_TYPES.curveR0Left },
+		{ type: TRACK_TYPES.curveR0Left },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.curveR0Right },
+		{ type: TRACK_TYPES.curveR0Right },
+		{ type: TRACK_TYPES.curveR0Right },
+		{ type: TRACK_TYPES.curveR0Right },
+		{ type: TRACK_TYPES.curveR0Right },
+		{ type: TRACK_TYPES.curveR0Right },
+		{ type: TRACK_TYPES.straight },
+		{ type: TRACK_TYPES.straightShort2 },
+		{ type: TRACK_TYPES.curveR0Right },
+		{ type: TRACK_TYPES.curveR0Right },
+		{ type: TRACK_TYPES.straight },
 	];
 
 	for (const track of trackPlan) {
@@ -119,6 +279,7 @@
 		straight: BABYLON.Mesh;
 		curve: BABYLON.Mesh;
 		currentDirection: "straight" | "curve";
+		initialized?: boolean;
 	};
 	let switches: Switch[] = [];
 
@@ -128,14 +289,19 @@
 		engine = new BABYLON.Engine(canvas, true);
 		scene = new BABYLON.Scene(engine);
 
+		const resizeObserver = new ResizeObserver(() => {
+			engine.resize();
+		});
+		resizeObserver.observe(canvas);
+
 		// Setup camera and light
 		// camera from top view
 		const camera = new BABYLON.ArcRotateCamera(
 			"camera1",
+			Math.PI / 2,
 			0,
-			0,
-			100,
-			new BABYLON.Vector3(25, 0, 0),
+			300,
+			new BABYLON.Vector3(-100, 0, 100),
 			scene
 		);
 		camera.attachControl(canvas, true);
@@ -153,6 +319,9 @@
 		trackMaterialRed.specularPower = 1000000;
 		groundMaterial.diffuseColor = whiteColor;
 		groundMaterial.specularPower = 1000000;
+		const yellowColor = new BABYLON.Color3(1, 1, 0);
+		const yellowMaterial = new BABYLON.StandardMaterial("yellowMaterial", scene);
+		yellowMaterial.diffuseColor = yellowColor;
 
 		const width = 2;
 		const height = 0.4;
@@ -196,7 +365,7 @@
 		}
 
 		// Function to create a curve track
-		function createCurve(radius: number, angle: number, direction: "left" | "right", pandr: PandR, material: BABYLON.Material) {
+		function createCurve(radius: number, angle: number, direction: "left" | "right", pandr: PandR, material: BABYLON.Material, flipped = false) {
 			const points = [];
 			const angleOffset = 90;
 			const sign = (direction == "left" ? 1 : -1);
@@ -215,6 +384,27 @@
 			track.position = pandr.position.clone();
 			track.rotation = pandr.rotation.clone();
 			track.position.y -= 0.01;
+
+			if (flipped) {
+				// track.setEnabled(false);
+				track.rotation.z += Math.PI;
+				track.position.y += height;
+
+				// move -25 depending on pandr rotation
+				// track.position.z -= 25; if pandr.rotation.y == 0
+				track.position.addInPlace(new BABYLON.Vector3(25, 0, 0).rotateByQuaternionToRef(pandr.rotation.toQuaternion(), new BABYLON.Vector3()));
+
+				return {
+					pandr: {
+						// also flipped
+						position: points[points.length - 1].rotateByQuaternionToRef(pandr.rotation.toQuaternion(), new BABYLON.Vector3()).addInPlace(pandr.position).addInPlace(new BABYLON.Vector3(-12, 0, -1.8).rotateByQuaternionToRef(pandr.rotation.toQuaternion(), new BABYLON.Vector3())),
+						// also flipped
+						rotation: pandr.rotation.add(new BABYLON.Vector3(0, (180 + sign * angle) * Math.PI / 180, 0))
+					},
+					mesh: track
+				}
+			}
+
 			return {
 				pandr: {
 					position: points[points.length - 1].rotateByQuaternionToRef(pandr.rotation.toQuaternion(), new BABYLON.Vector3()).addInPlace(pandr.position),
@@ -241,7 +431,7 @@
 
 			last[track.id!] = [];
 
-			const material = trackMaterial;
+			const material = track.highlight ? yellowMaterial : trackMaterial;
 			const meshes = [];
 			for (let i = 0; i < track.type.lines.length; i++) {
 				const line = track.type.lines[i];
@@ -250,7 +440,7 @@
 					last[track.id!].push(pandr);
 					meshes.push(mesh);
 				} else if (line.type === "curve") {
-					const { pandr, mesh } = createCurve(line.radius, line.angle, line.direction, current, material);
+					const { pandr, mesh } = createCurve(line.radius, line.angle, line.direction, current, material, line.flipped);
 					last[track.id!].push(pandr);
 					meshes.push(mesh);
 				}
@@ -276,6 +466,7 @@
 				for (const switchE of switches) {
 					if (pickResult.pickedMesh === switchE.straight || pickResult.pickedMesh === switchE.curve) {
 						setSwitchDirection(switchE, switchE.currentDirection === "straight" ? "curve" : "straight");
+						return;
 					}
 				}
 			}
@@ -288,21 +479,28 @@
 		window.addEventListener("resize", () => {
 			engine.resize();
 		});
+
+		return () => {
+			engine.dispose();
+			resizeObserver.disconnect();
+		};
 	});
 
 	function setSwitchDirection(switchE: Switch, direction: "straight" | "curve") {
+		const offset = 0.05;
 		if (direction === "straight") {
 			switchE.straight.material = trackMaterialRed;
 			switchE.curve.material = trackMaterial;
-			switchE.curve.position.y = -0.01;
-			switchE.straight.position.y = 0.0;
+			if (switchE.initialized) switchE.curve.position.y -= offset;
+			switchE.straight.position.y += offset;
 		} else {
 			switchE.straight.material = trackMaterial;
 			switchE.curve.material = trackMaterialRed;
-			switchE.straight.position.y = -0.01;
-			switchE.curve.position.y = 0.0;
+			if (switchE.initialized) switchE.straight.position.y -= offset;
+			switchE.curve.position.y += offset;
 		}
 		switchE.currentDirection = direction;
+		switchE.initialized = true;
 		switches = switches;
 	}
 </script>
@@ -311,7 +509,7 @@
 	<div class="col-sm-3">
 		<h5>Switches</h5>
 		<ul class="list-group">
-			{#each switches as switchE}
+			{#each switches.sort((a, b) => a.id - b.id) as switchE}
 				<li class="list-group-item">
 					<div class="d-flex justify-content-between">
 						<div>Weiche {switchE.id}</div>
